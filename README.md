@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🗺️ PathForge: Interactive Roadmap Builder
 
-## Getting Started
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)
+![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat&logo=next.js&logoColor=white)
 
-First, run the development server:
+**PathForge** — це інтерактивний інструмент для створення дорожніх карт (Roadmaps), схем та діаграм. Проект дозволяє користувачам візуалізувати процеси, створювати вузли, з'єднувати їх зв'язками та вільно переміщуватись по нескінченному полотну.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+🔗 **Demo:** [Посилання на деплой (Vercel/Netlify)] *(Додай сюди посилання, коли задеплоїш)*
+
+---
+
+## ✨ Основні можливості
+
+-   🛠 **Drag & Drop Editor:** Легке додавання та переміщення вузлів по робочій області.
+-   🔗 **Custom Connections:** Створення логічних зв'язків між блоками за допомогою кривих Безьє.
+-   🔍 **Zoom & Pan:** Зручна навігація по великих схемах (масштабування та панорамування).
+-   🎨 **Custom Nodes:** Різні типи блоків (Start, Process, Decision, End) з можливістю редагування тексту.
+-   💾 **Local Save:** Автоматичне збереження стану карти в LocalStorage (втратити дані неможливо!).
+-   📱 **Responsive Canvas:** Адаптація інтерфейсу під різні розміри екранів.
+
+---
+
+## 🛠️ Технологічний стек
+
+-   **Core:** [React](https://reactjs.org/), [Next.js](https://nextjs.org/) (App Router)
+-   **Language:** [TypeScript](https://www.typescriptlang.org/) (Strict mode)
+-   **State Management:** [Zustand](https://github.com/pmndrs/zustand) (для управління станом вузлів та налаштувань)
+-   **Visualization:** [React Flow](https://reactflow.dev/) (основний двигун для роботи з графами)
+-   **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+-   **Icons:** [Lucide React](https://lucide.dev/)
+
+---
+
+## 🚀 Як запустити проект локально
+
+1.  **Клонуйте репозиторій:**
+    ```bash
+    git clone [https://github.com/your-username/path-forge.git](https://github.com/your-username/path-forge.git)
+    cd path-forge
+    ```
+
+2.  **Встановіть залежності:**
+    ```bash
+    npm install
+    # або
+    yarn install
+    ```
+
+3.  **Запустіть сервер розробки:**
+    ```bash
+    npm run dev
+    ```
+
+4.  Відкрийте [http://localhost:3000](http://localhost:3000) у вашому браузері.
+
+---
+
+## 📂 Структура проекту
+
+```text
+path-forge/
+├── app/                # Next.js App Router сторінки
+├── components/         # React компоненти
+│   ├── FlowEditor/     # Логіка редактора графа
+│   ├── Toolbar/        # Панель інструментів
+│   └── UI/             # Загальні UI елементи (кнопки, модалки)
+├── store/              # Zustand стори (управління станом)
+├── types/              # TypeScript інтерфейси
+├── utils/              # Допоміжні функції
+└── public/             # Статичні файли
 ```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🔮 Плани на майбутнє (Roadmap)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- [ ] **Backend Integration:** Збереження карт у базі даних (PostgreSQL + Prisma).
+- [ ] **Sharing:** Можливість поділитися посиланням на свою карту (Read-only mode).
+- [ ] **Multiplayer:** Спільне редагування в реальному часі (через WebSockets/Liveblocks).
+- [ ] **Export:** Експорт схеми у формат PNG/PDF.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🤝 Контакти
 
-To learn more about Next.js, take a look at the following resources:
+**Денис** - Software Engineering Student
+- [LinkedIn](https://www.linkedin.com/in/denys-hrushevytskyi/)
+- [GitHub](https://github.com/Reiclid)
+- [Email](mailto:reiclid@gmail.com)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+*Створено з ❤️ та TypeScript.*
