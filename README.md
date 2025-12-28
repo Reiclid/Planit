@@ -27,7 +27,7 @@
 -   **Core:** [React](https://reactjs.org/), [Next.js](https://nextjs.org/) (App Router)
 -   **Language:** [TypeScript](https://www.typescriptlang.org/) (Strict mode)
 -   **State Management:** [Zustand](https://github.com/pmndrs/zustand) (для управління станом вузлів та налаштувань)
--   **Visualization:** [React Flow](https://reactflow.dev/) (основний двигун для роботи з графами)
+-   **Visualization:** [React Konva](https://konvajs.org/) (основний двигун для роботи з графами)
 -   **Styling:** [Tailwind CSS](https://tailwindcss.com/)
 -   **Icons:** [Lucide React](https://lucide.dev/)
 
@@ -37,8 +37,8 @@
 
 1.  **Клонуйте репозиторій:**
     ```bash
-    git clone [https://github.com/your-username/path-forge.git](https://github.com/your-username/path-forge.git)
-    cd path-forge
+    git clone [https://github.com/Reiclid/Planit.git](https://github.com/Reiclid/Planit.git)
+    cd planit
     ```
 
 2.  **Встановіть залежності:**
@@ -60,7 +60,7 @@
 ## 📂 Структура проекту
 
 ```text
-path-forge/
+planit/
 ├── app/                # Next.js App Router сторінки
 ├── components/         # React компоненти
 │   ├── FlowEditor/     # Логіка редактора графа
