@@ -4,18 +4,23 @@ import { Stage, Layer, Rect, Line, Circle } from 'react-konva';
 import { useStore } from '@/store/useStore';
 
 const Editor = () => {
-    const { tool } = useStore();
+    const { tool, lines, setLines } = useStore();
 
-    const [lines, setLines] = useState<any[]>([]);
     const isDrawing = useRef(false);
 
     const handleMouseDown = (e: any) => {
-        if (tool !== 'pen') return;
+        if (tool !== 'pen' && tool !== 'eraser') return;
 
         isDrawing.current = true;
         const pos = e.target.getStage().getRelativePointerPosition();
 
-        setLines([...lines, { tool, points: [pos.x, pos.y] }]);
+        const newLine = {
+            id: Date.now().toString(),
+            tool,
+            points: [pos.x, pos.y]
+        };
+
+        setLines([...lines, newLine]);
     };
 
     const handleMouseMove = (e: any) => {
@@ -45,13 +50,17 @@ const Editor = () => {
             draggable={tool === 'cursor'}
         >
             <Layer>
-                {/* Тут рендеримо всі лінії */}
                 {lines.map((line, i) => (
                     <Line
-                        key={i}
+                        key={line.id}
                         points={line.points}
-                        stroke="#df4b26"
-                        strokeWidth={5}
+                        stroke={line.tool === 'eraser' ? '#df4b26' : '#000000'}
+                        strokeWidth={line.tool === 'eraser' ? 25 : 5}
+
+                        globalCompositeOperation={
+                            line.tool === 'eraser' ? 'destination-out' : 'source-over'
+                        }
+
                         tension={0.5}
                         lineCap="round"
                         lineJoin="round"
@@ -67,7 +76,7 @@ const Editor = () => {
                     fill="white"
                     stroke="black"
                     shadowBlur={10}
-                    draggable={tool === 'cursor'} // Блоки можна тягати тільки в режимі курсора
+                    draggable={tool === 'cursor'}
                 />
             </Layer>
         </Stage>

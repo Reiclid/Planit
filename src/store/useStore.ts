@@ -1,15 +1,22 @@
 ﻿import { create } from 'zustand';
 
 interface AppState {
-  tool: string;
-  setTool: (tool: string) => void;
+    tool: string;
+    setTool: (tool: string) => void;
+    lines: any[];
+    setLines: (lines: any[]) => void;
+    removeLine: (lineId: string) => void;
 }
 
 export const useStore = create<AppState>((set) => ({
-  tool: 'cursor',
-  setTool: (tool) => set({ tool }),
-}));
+    tool: 'cursor',
+    setTool: (tool) => set({ tool }),
 
-export function deleteLine(index: number) {
+    lines: [],
+    setLines: (lines) => set({ lines }),
+    removeLine: (lineId) => set((state) => ({
+        lines: state.lines.filter((line) => line.id !== lineId)
+    })),
+
     
-};
+}));

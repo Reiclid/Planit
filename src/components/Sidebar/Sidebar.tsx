@@ -1,5 +1,5 @@
 ﻿'use client';
-import { House, Brush, MousePointer2, LucideIcon } from 'lucide-react';
+import { House, Brush, MousePointer2, Eraser, LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useStore } from '@/store/useStore';
 
@@ -42,7 +42,7 @@ const Sidebar = () => {
             <ul className={'flex-1 flex flex-col justify-center gap-4 font-bold text-lg w-[300px]'}>
                 <NavItem id="cursor" label="Cursor" icon={MousePointer2} isActive={tool === 'cursor'} onClick={setTool} />
                 <NavItem id="pen" label="Pen" icon={Brush} isActive={tool === 'pen'} onClick={setTool} />
-                {/* <NavItem id="contact" label="Contact" icon={House} /> */}
+                <NavItem id="eraser" label="Eraser" icon={Eraser} isActive={tool === 'eraser'} onClick={setTool} />
             </ul>
         </nav>
     );
