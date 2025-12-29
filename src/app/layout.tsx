@@ -4,6 +4,7 @@ import { House } from 'lucide-react';
 import "./globals.css";
 
 import Sidebar from '../components/Sidebar/Sidebar';
+import ToolSettings from '@/components/ToolSettings/ToolSettings';
 
 const robotoMono = Roboto_Mono({
   variable: "--font-roboto-mono",
@@ -21,6 +22,7 @@ export default function RootLayout({ children, }: Readonly<{ children: React.Rea
   return (
     <html lang="en">
       <body className={`${robotoMono.variable} antialiased flex min-h-screen`}>
+        <ToolSettings />
         <Sidebar />
         <main className={'flex-1 flex justify-center items-center'}>{children}</main>
       </body>

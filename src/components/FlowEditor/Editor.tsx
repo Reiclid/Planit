@@ -5,21 +5,66 @@ import { useStore } from '@/store/useStore';
 import { calculateEraser, calculateSelection } from '@/utils/canvasHelpers';
 
 const Editor = () => {
-    const { tool, lines, setLines, selectedIds, setSelectedIds } = useStore();
-    const [selectionRect, setSelectionRect] = useState({ x: 0, y: 0, width: 0, height: 0, isVisible: false });
-    const isDrawing = useRef(false);
+    const { tool, lines, setLines, selectedIds, setSelectedIds, penSetting } = useStore();
 
+    const [scale, setScale] = useState(1);
+    const [position, setPosition] = useState({ x: 0, y: 0 });
+
+    const [selectionRect, setSelectionRect] = useState({ x: 0, y: 0, width: 0, height: 0, isVisible: false });
+
+    const [currentLine, setCurrentLine] = useState<any>(null);
+    const currentLineRef = useRef<any>(null);
+
+    const isDrawing = useRef(false);
     const isPanning = useRef(false);
     const lastMousePos = useRef({ x: 0, y: 0 });
     const trRef = useRef<any>(null);
 
+    // Zoom functions
+    const handleWheel = (e: any) => {
+        e.evt.preventDefault();
+
+        const stage = e.target.getStage();
+        const oldScale = stage.scaleX();
+        const pointer = stage.getPointerPosition();
+
+        const scaleBy = 1.1;
+        let newScale = e.evt.deltaY < 0 ? oldScale * scaleBy : oldScale / scaleBy;
+
+        const MIN_SCALE = 0.05;
+        const MAX_SCALE = 2;
+
+        if (newScale < MIN_SCALE) {
+            newScale = MIN_SCALE;
+        } else if (newScale > MAX_SCALE) {
+            newScale = MAX_SCALE;
+        }
+
+        const mousePointTo = {
+            x: (pointer.x - stage.x()) / oldScale,
+            y: (pointer.y - stage.y()) / oldScale,
+        };
+
+        const newPos = {
+            x: pointer.x - mousePointTo.x * newScale,
+            y: pointer.y - mousePointTo.y * newScale,
+        };
+
+        setScale(newScale);
+        setPosition(newPos);
+        stage.position(newPos);
+        stage.scale({ x: newScale, y: newScale });
+        stage.batchDraw();
+    };
+
+    // Eraser functions
     const handleErase = (stage: any) => {
         const pos = stage.getRelativePointerPosition();
         const { nextLines, wasModified } = calculateEraser(lines, pos);
         if (wasModified) setLines(nextLines);
     };
 
-    // Drawing functions for pen and eraser
+    // Drawing functions for pen
     const startDrawing = (stage: any) => {
         isDrawing.current = true;
         const pos = stage.getRelativePointerPosition();
@@ -27,33 +72,32 @@ const Editor = () => {
         const newLine = {
             id: Date.now().toString(),
             tool,
-            points: [[pos.x, pos.y]]
+            points: [[pos.x, pos.y]],
+            stroke: penSetting.color,
+            strokeWidth: penSetting.size,
         };
 
-        setLines([...lines, newLine]);
+        currentLineRef.current = newLine;
+        setCurrentLine(newLine);
     };
 
     const continueDrawing = (stage: any) => {
-        if (!isDrawing.current) return;
+        if (!isDrawing.current || !currentLineRef.current) return;
+
         const point = stage.getRelativePointerPosition();
+        const liveLine = currentLineRef.current;
 
-        const newLines = [...lines];
-        const lastLine = { ...newLines[newLines.length - 1] };
+        const lastSegmentIndex = liveLine.points.length - 1;
+        const prevPoints = liveLine.points[lastSegmentIndex];
 
-        if (!lastLine || !lastLine.points) return;
+        const newPoints = prevPoints.concat([point.x, point.y]);
 
-        const segments = [...lastLine.points];
-        const lastSegment = [...segments[segments.length - 1]];
+        liveLine.points[lastSegmentIndex] = newPoints;
 
-        lastSegment.push(point.x, point.y);
-
-        lastLine.points = lastLine.points.concat([point.x, point.y]);
-
-        segments[segments.length - 1] = lastSegment;
-        lastLine.points = segments;
-
-        newLines[newLines.length - 1] = lastLine;
-        setLines(newLines);
+        setCurrentLine({ 
+            ...liveLine, 
+            points: [...liveLine.points]
+        });
     };
 
     // Selection functions for cursor tool
@@ -80,37 +124,6 @@ const Editor = () => {
         const foundIds = calculateSelection(lines, selectionRect);
         setSelectedIds(foundIds);
         setSelectionRect({ ...selectionRect, isVisible: false });
-    };
-
-    const handleTransformEnd = (e: any, lineId: string) => {
-        const node = e.target;
-
-        const newAttrs = {
-            x: node.x(),
-            y: node.y(),
-            rotation: node.rotation(),
-            scaleX: node.scaleX(),
-            scaleY: node.scaleY(),
-        };
-
-        setLines(lines.map((l) => {
-            if (l.id === lineId) {
-                return { ...l, ...newAttrs };
-            }
-            return l;
-        }));
-    };
-
-    const updatePosition = (e: any, lineId: string) => {
-        const newX = e.target.x();
-        const newY = e.target.y();
-
-        setLines(lines.map((l) => {
-            if (l.id === lineId) {
-                return { ...l, x: newX, y: newY };
-            }
-            return l;
-        }));
     };
 
     const handleMouseDown = (e: any) => {
@@ -149,10 +162,10 @@ const Editor = () => {
 
             lastMousePos.current = { x: e.evt.clientX, y: e.evt.clientY };
 
-            stage.position({
-                x: stage.x() + dx,
-                y: stage.y() + dy,
-            });
+            const newPos = { x: stage.x() + dx, y: stage.y() + dy };
+            stage.position(newPos);
+            setPosition(newPos);
+
             stage.batchDraw();
             return;
         }
@@ -166,15 +179,18 @@ const Editor = () => {
 
     const handleMouseUp = (e: any) => {
         isPanning.current = false;
+
+        if (isDrawing.current && currentLineRef.current) {
+            useStore.getState().setLines([...useStore.getState().lines, currentLineRef.current]);
+        }
+
         isDrawing.current = false;
+        currentLineRef.current = null;
+        setCurrentLine(null);
 
-        const container = e.target.getStage().container();
-        container.style.cursor = 'default';
-
+        e.target.getStage().container().style.cursor = 'default';
         stopSelecting();
     };
-
-
 
     useEffect(() => {
         if (trRef.current && trRef.current.getLayer()) {
@@ -194,12 +210,20 @@ const Editor = () => {
 
             draggable={false}
 
+            onWheel={handleWheel}
+            scaleX={scale}
+            scaleY={scale}
+            x={position.x}
+            y={position.y}
+
             onContextMenu={(e) => e.evt.preventDefault()}
 
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
         >
+
+
             <Layer>
                 {lines.map((line, i) => (
                     <Group
@@ -207,29 +231,63 @@ const Editor = () => {
                         id={line.id}
                         draggable={tool === 'cursor'}
                         dragButtons={[0]}
-
                         x={line.x || 0}
                         y={line.y || 0}
+                        rotation={line.rotation || 0}
+                        scaleX={line.scaleX || 1}
+                        scaleY={line.scaleY || 1}
 
-                        onDragEnd={(e) => updatePosition(e, line.id)}
-                        onTransformEnd={(e) => handleTransformEnd(e, line.id)}
+                        onDragEnd={(e) => {
+                            useStore.getState().updateLine(line.id, {
+                                x: e.target.x(),
+                                y: e.target.y()
+                            });
+                        }}
+
+                        onTransformEnd={(e) => {
+                            const node = e.target;
+                            useStore.getState().updateLine(line.id, {
+                                x: node.x(),
+                                y: node.y(),
+                                rotation: node.rotation(),
+                                scaleX: node.scaleX(),
+                                scaleY: node.scaleY(),
+                            });
+                        }}
                     >
-                        {/* Рендеримо кожен шматочок окремо */}
                         {line.points.map((segment: number[], index: number) => (
                             <Line
                                 key={index}
                                 points={segment}
-                                stroke="#000000ff"
-                                strokeWidth={5}
+                                stroke={line.stroke || '#000000'}
+                                strokeWidth={line.strokeWidth || 5}
                                 tension={0.5}
                                 lineCap="round"
                                 lineJoin="round"
+                                listening={tool === 'cursor' || tool === 'eraser'}
                             />
                         ))}
                     </Group>
                 ))}
 
-                {/* Приклад фігури (майбутній блок схеми) */}
+                {currentLine && (
+                    <Group>
+                        {currentLine.points.map((segment: number[], index: number) => (
+                            <Line
+                                key={index}
+                                points={segment}
+                                stroke={currentLine.stroke}
+                                strokeWidth={currentLine.strokeWidth}
+                                tension={0.5}
+                                lineCap="round"
+                                lineJoin="round"
+                                listening={false}
+                            />
+                        ))}
+                    </Group>
+                )}
+
+                {/* Example Rect */}
                 <Rect
                     x={200}
                     y={200}
